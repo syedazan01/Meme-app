@@ -11,12 +11,9 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
@@ -29,7 +26,8 @@ import org.json.JSONObject;
 public class MainActivity extends AppCompatActivity {
     ImageView imageView;
     ProgressBar progressBar;
-    String currentImageUrl = "";
+    String apiUrl = "";
+    String currentImageUrl ="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,16 +42,16 @@ public class MainActivity extends AppCompatActivity {
         // Instantiate the RequestQueue.
         //load progress bar
         progressBar.setVisibility(View.VISIBLE);
-        currentImageUrl = "https://meme-api.herokuapp.com/gimme";
+        apiUrl = "https://meme-api.herokuapp.com/gimme";
 
         // Request a string response from the provided URL.
-        final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, currentImageUrl, null,
+        final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, apiUrl, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            String url = response.getString("url");
-                            Glide.with(MainActivity.this).load(url).listener(new RequestListener<Drawable>() {
+                             currentImageUrl = response.getString("url");
+                            Glide.with(MainActivity.this).load(currentImageUrl).listener(new RequestListener<Drawable>() {
                                 @Override
                                 public boolean onLoadFailed(@Nullable GlideException e,
                                                             Object model, Target<Drawable> target,
@@ -72,7 +70,8 @@ public class MainActivity extends AppCompatActivity {
                                     return false;
                                 }
                             }).into(imageView);
-                        } catch (JSONException e) {
+                        }
+                        catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
@@ -84,13 +83,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
 // Add the request to the RequestQueue.
-       MySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
+        MySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
     }
 
     public void shareMeme(View view) {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT,"Hey checkout this cool meme i got form Reddit "+currentImageUrl);
+        intent.putExtra(Intent.EXTRA_TEXT, "Hey checkout this cool meme i got form Reddit " + currentImageUrl);
         startActivity(intent.createChooser(intent, "Share this meme using ...."));
 
     }
